@@ -1,7 +1,7 @@
 package main
 
 import (
-    "github.com/ehazlett/shipyard-go/shipyard"
+    "github.com/shipyard/shipyard-go/shipyard"
     "github.com/codegangsta/cli"
     "fmt"
     "flag"
