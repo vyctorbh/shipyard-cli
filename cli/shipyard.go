@@ -104,34 +104,36 @@ func main() {
     }
     app.Commands = []cli.Command{
         {
-            Name:      "applications",
-            ShortName: "apps",
+            Name:      "show-applications",
+            ShortName: "",
             Usage:     "Manage Applications",
             Flags: []cli.Flag {
-                cli.StringFlag{"name", "", "Application Name (for app operations)"},
-                cli.BoolFlag{"details", "Show Application Details"},
+                cli.StringFlag{"name", "", "Application Name (optional)"},
             },
             Action: func(c *cli.Context) {
-                applicationAction(c)
+                showApplicationsAction(c)
             },
         },
         {
-            Name:      "containers",
-            ShortName: "cnt",
+            Name:      "show-containers",
+            ShortName: "",
             Usage:     "Manage Containers",
             Flags: []cli.Flag {
-                cli.StringFlag{"id", "", "Container ID (for container operations)"},
-                cli.BoolFlag{"details", "Show Container Details"},
+                cli.StringFlag{"id", "", "Container ID (optional)"},
             },
             Action: func(c *cli.Context) {
-                containerAction(c)
+                showContainersAction(c)
             },
         },
         {
-            Name:      "hosts",
-            ShortName: "hosts",
+            Name:      "show-hosts",
+            ShortName: "",
             Usage:     "Manage Hosts",
+            Flags: []cli.Flag {
+                cli.StringFlag{"name", "", "Name of Host (optional)"},
+            },
             Action: func(c *cli.Context) {
+                showHostsAction(c)
             },
         },
         {
