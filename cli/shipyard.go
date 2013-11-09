@@ -25,7 +25,11 @@ type Config struct {
     Version     string
 }
 
-func loadConfig() (Config, error) {
+func loadConfig(c *cli.Context) (Config, error) {
+    apiUsername = c.GlobalString("username")
+    apiKey = c.GlobalString("key")
+    apiUrl = c.GlobalString("url")
+    apiVersion = c.GlobalString("api-version")
     configFile := path.Join(os.Getenv("HOME"), ".shipyard.cfg")
     var config = Config{}
     _, err := os.Stat(configFile)
@@ -66,8 +70,8 @@ func loadConfig() (Config, error) {
     return config, nil
 }
 
-func getAPI() shipyard.API {
-    config, _ := loadConfig()
+func getAPI(c *cli.Context) shipyard.API {
+    config, _ := loadConfig(c)
     api := shipyard.NewAPI(config.Username, config.ApiKey, config.Url, config.Version)
     return *api
 }
@@ -84,10 +88,6 @@ func main() {
         cli.StringFlag{"api-version", "1", "Shipyard API Version"},
     }
     app.Action = func(c *cli.Context) {
-        apiUsername = c.String("username")
-        apiKey = c.String("key")
-        apiUrl = c.String("url")
-        apiVersion = c.String("api-version")
         if len(c.Args()) == 0 {
             cli.ShowAppHelp(c)
             os.Exit(2)
@@ -107,14 +107,24 @@ func main() {
             Name:      "applications",
             ShortName: "apps",
             Usage:     "Manage Applications",
+            Flags: []cli.Flag {
+                cli.StringFlag{"name", "", "Application Name (for app operations)"},
+                cli.BoolFlag{"details", "Show Application Details"},
+            },
             Action: func(c *cli.Context) {
+                applicationAction(c)
             },
         },
         {
             Name:      "containers",
             ShortName: "cnt",
             Usage:     "Manage Containers",
+            Flags: []cli.Flag {
+                cli.StringFlag{"id", "", "Container ID (for container operations)"},
+                cli.BoolFlag{"details", "Show Container Details"},
+            },
             Action: func(c *cli.Context) {
+                containerAction(c)
             },
         },
         {
@@ -129,11 +139,7 @@ func main() {
             ShortName: "cfg",
             Usage:     "Show current Shipyard config",
             Action: func(c *cli.Context) {
-                config, _ := loadConfig()
-                LogMessage(fmt.Sprintf("Endpoint: %v", config.Url))
-                LogMessage(fmt.Sprintf("Username: %v", config.Username))
-                LogMessage(fmt.Sprintf("Version: %v", config.Version))
-                LogMessage(fmt.Sprintf("APIKey: %v...", config.ApiKey[0:5]))
+                configAction(c)
             },
         },
         {
@@ -141,7 +147,7 @@ func main() {
             ShortName: "info",
             Usage:     "Show Shipyard Info",
             Action: func(c *cli.Context) {
-                api := getAPI()
+                api := getAPI(c)
                 fmt.Println(api.GetInfo())
             },
         },
