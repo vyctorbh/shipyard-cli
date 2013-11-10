@@ -53,6 +53,10 @@ func showContainersAction(c *cli.Context) {
 					LogMessage(fmt.Sprintf("Description: %v", v.Description), "g")
 				}
 				LogMessage(fmt.Sprintf("Image: %v", v.Meta.Config.Image), "g")
+				LogMessage(fmt.Sprintf("CPU Shares: %v", v.Meta.Config.CpuShares), "g")
+				LogMessage(fmt.Sprintf("Memory Limit: %v", v.Meta.Config.Memory), "g")
+				LogMessage("Environment:", "g")
+				LogMessage(fmt.Sprintf("  %v", strings.Join(v.Meta.Config.Env, "\n   ")), "")
 				LogMessage(fmt.Sprintf("Created: %v", v.Meta.Created), "g")
 
 			}
