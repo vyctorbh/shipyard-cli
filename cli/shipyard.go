@@ -114,7 +114,7 @@ func main() {
 		{
 			Name:      "show-applications",
 			ShortName: "",
-			Usage:     "Manage Applications",
+			Usage:     "Show Applications",
 			Flags: []cli.Flag{
 				cli.StringFlag{"name", "", "Application Name (optional)"},
 			},
@@ -125,7 +125,7 @@ func main() {
 		{
 			Name:      "show-containers",
 			ShortName: "",
-			Usage:     "Manage Containers",
+			Usage:     "Show Containers",
 			Flags: []cli.Flag{
 				cli.StringFlag{"id", "", "Container ID (optional)"},
 			},
@@ -136,7 +136,7 @@ func main() {
 		{
 			Name:      "show-hosts",
 			ShortName: "",
-			Usage:     "Manage Hosts",
+			Usage:     "Show Hosts",
 			Flags: []cli.Flag{
 				cli.StringFlag{"name", "", "Name of Host (optional)"},
 			},

@@ -25,6 +25,7 @@ func showApplicationsAction(c *cli.Context) {
 				LogMessage(fmt.Sprintf("Domain Name: %v", v.DomainName), "g")
 				LogMessage(fmt.Sprintf("Protocol: %v", v.Protocol), "g")
 				LogMessage(fmt.Sprintf("UUID: %v\n", v.UUID), "g")
+				fmt.Println(v.Containers)
 			}
 		}
 		return
