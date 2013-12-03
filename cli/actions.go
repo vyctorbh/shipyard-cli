@@ -3,8 +3,42 @@ package main
 import (
 	"fmt"
 	"github.com/codegangsta/cli"
+	"github.com/gcmurphy/getpass"
 	"strings"
 )
+
+func loginAction(c *cli.Context) {
+	api := getAPI(c)
+	var url string
+	var version string
+	var username string
+	var password string
+	fmt.Printf("URL: ")
+	_, urlErr := fmt.Scanln(&url)
+	if urlErr != nil {
+		panic(urlErr)
+	}
+	fmt.Printf("Username: ")
+	_, usernameErr := fmt.Scanln(&username)
+	if usernameErr != nil {
+		panic(usernameErr)
+	}
+	password, passwordErr := getpass.GetPass()
+	if passwordErr != nil {
+		panic(passwordErr)
+	}
+	fmt.Printf("Version (default: 1): ")
+	_, verErr := fmt.Scanln(&version)
+	if verErr != nil {
+		version = "1"
+	}
+	userData, loginErr := api.Login(url, username, password)
+	if loginErr != nil {
+		panic(loginErr)
+	}
+	saveConfig(username, userData.ApiKey, url, version)
+	LogMessage("Login successful", "g")
+}
 
 func showApplicationsAction(c *cli.Context) {
 	api := getAPI(c)

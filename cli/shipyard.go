@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/codegangsta/cli"
 	"github.com/shipyard/shipyard-go/shipyard"
@@ -10,6 +9,8 @@ import (
 	"os"
 	"path"
 )
+
+var configFile = path.Join(os.Getenv("HOME"), ".shipyard.cfg")
 
 var (
 	apiUsername string
@@ -25,42 +26,33 @@ type Config struct {
 	Version  string
 }
 
+func saveConfig(username string, apiKey string, url string, version string) {
+	// config
+	var config = Config{}
+	config = Config{
+		Username: username,
+		ApiKey:   apiKey,
+		Url:      url,
+		Version:  version,
+	}
+	// save config
+	cfg, err := json.Marshal(config)
+	b := []byte(cfg)
+	err = ioutil.WriteFile(configFile, b, 0600)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func loadConfig(c *cli.Context) (Config, error) {
 	apiUsername = c.GlobalString("username")
 	apiKey = c.GlobalString("key")
 	apiUrl = c.GlobalString("url")
 	apiVersion = c.GlobalString("api-version")
-	configFile := path.Join(os.Getenv("HOME"), ".shipyard.cfg")
 	var config = Config{}
 	_, err := os.Stat(configFile)
-	if err != nil || apiUrl != "" || apiUsername != "" || apiKey != "" {
-		if apiUrl == "" {
-			fmt.Println("Error: You must specify a Shipyard URL")
-			flag.PrintDefaults()
-			os.Exit(1)
-		}
-		if apiUsername == "" {
-			fmt.Println("Error: You must specify a Shipyard Username")
-			os.Exit(1)
-		}
-		if apiKey == "" {
-			fmt.Println("Error: You must specify a Shipyard API Key")
-			os.Exit(1)
-		}
-		// config
-		config = Config{
-			Username: apiUsername,
-			ApiKey:   apiKey,
-			Url:      apiUrl,
-			Version:  apiVersion,
-		}
-		// save config
-		cfg, err := json.Marshal(config)
-		b := []byte(cfg)
-		err = ioutil.WriteFile(configFile, b, 0600)
-		if err != nil {
-			panic(err)
-		}
+	if err != nil {
+		saveConfig(apiUsername, apiKey, apiUrl, apiVersion)
 	} else {
 		cfg, err := ioutil.ReadFile(configFile)
 		if err != nil {
@@ -111,6 +103,14 @@ func main() {
 		}
 	}
 	app.Commands = []cli.Command{
+		{
+			Name:      "login",
+			ShortName: "",
+			Usage:     "Login",
+			Action: func(c *cli.Context) {
+				loginAction(c)
+			},
+		},
 		{
 			Name:      "show-applications",
 			ShortName: "",
