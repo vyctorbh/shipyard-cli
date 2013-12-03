@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+        "os"
 	"github.com/codegangsta/cli"
 	"github.com/gcmurphy/getpass"
 	"strings"
@@ -34,7 +35,8 @@ func loginAction(c *cli.Context) {
 	}
 	userData, loginErr := api.Login(url, username, password)
 	if loginErr != nil {
-		panic(loginErr)
+            LogMessage("Error logging in.  Please check username/password.", "r")
+            os.Exit(1)
 	}
 	saveConfig(username, userData.ApiKey, url, version)
 	LogMessage("Login successful", "g")
@@ -83,7 +85,7 @@ func showContainersAction(c *cli.Context) {
 		// check for operation
 		for _, v := range containers {
 			if strings.Index(v.ContainerID, containerID) == 0 {
-				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID), "g")
+				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID[:12]), "g")
 				if v.Description != "" {
 					LogMessage(fmt.Sprintf("Description: %v", v.Description), "g")
 				}
@@ -100,7 +102,7 @@ func showContainersAction(c *cli.Context) {
 	}
 	// no op specified ; show all
 	for _, v := range containers {
-		LogMessage(fmt.Sprintf("%v (%v)", v.ContainerID, v.Meta.Config.Image), "g")
+		LogMessage(fmt.Sprintf("%v (%v)", v.ContainerID[:12], v.Meta.Config.Image), "g")
 	}
 }
 
