@@ -51,24 +51,34 @@ func applicationsAction(c *cli.Context) {
 	apps := appMeta.Objects
 	// check for app op
 	appName := c.String("name")
+	color := ""
 	if appName != "" {
 		// check for operation
 		for _, v := range apps {
 			if v.Name == appName {
-				LogMessage(fmt.Sprintf("Name: %v", v.Name), "g")
-				LogMessage(fmt.Sprintf("Backend Port: %v", v.BackendPort), "g")
-				LogMessage(fmt.Sprintf("Description: %v", v.Description), "g")
-				LogMessage(fmt.Sprintf("Domain Name: %v", v.DomainName), "g")
-				LogMessage(fmt.Sprintf("Protocol: %v", v.Protocol), "g")
-				LogMessage(fmt.Sprintf("UUID: %v\n", v.UUID), "g")
-				fmt.Println(v.Containers)
+				LogMessage(fmt.Sprintf("Name: %v", v.Name), color)
+				LogMessage(fmt.Sprintf("Backend Port: %v", v.BackendPort), color)
+				LogMessage(fmt.Sprintf("Description: %v", v.Description), color)
+				LogMessage(fmt.Sprintf("Domain Name: %v", v.DomainName), color)
+				LogMessage(fmt.Sprintf("Protocol: %v", v.Protocol), color)
+				LogMessage(fmt.Sprintf("UUID: %v", v.UUID), color)
+				if len(v.Containers) > 0 {
+					LogMessage(fmt.Sprintf("Containers"), color)
+					for _, c := range v.Containers {
+						status := "running"
+						if !c.Running {
+							status = "stopped"
+						}
+						LogMessage(fmt.Sprintf("  %s %s (%s)", c.ContainerID[:12], c.Description, status), color)
+					}
+				}
 			}
 		}
 		return
 	}
 	// no op specified ; show all
 	for _, v := range apps {
-		LogMessage(v.Name, "g")
+		LogMessage(v.Name, color)
 	}
 }
 
@@ -140,22 +150,23 @@ func containersAction(c *cli.Context) {
 		}
 		return
 	}
+	color := ""
 	if containerID != "" {
 		for _, v := range containers {
 			if strings.Index(v.ContainerID, containerID) == 0 {
-				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID[:12]), "g")
-				LogMessage(fmt.Sprintf("Host: %v", v.Host.Name), "g")
+				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID[:12]), color)
+				LogMessage(fmt.Sprintf("Host: %v", v.Host.Name), color)
 				if v.Description != "" {
-					LogMessage(fmt.Sprintf("Description: %v", v.Description), "g")
+					LogMessage(fmt.Sprintf("Description: %v", v.Description), color)
 				}
-				LogMessage(fmt.Sprintf("Image: %v", v.Meta.Config.Image), "g")
-				LogMessage(fmt.Sprintf("CPU Shares: %v", v.Meta.Config.CpuShares), "g")
-				LogMessage(fmt.Sprintf("Memory Limit: %v", v.Meta.Config.Memory), "g")
+				LogMessage(fmt.Sprintf("Image: %v", v.Meta.Config.Image), color)
+				LogMessage(fmt.Sprintf("CPU Shares: %v", v.Meta.Config.CpuShares), color)
+				LogMessage(fmt.Sprintf("Memory Limit: %v", v.Meta.Config.Memory), color)
 				if len(v.Meta.Config.Env) > 0 {
-					LogMessage("Environment", "g")
-					LogMessage(fmt.Sprintf("  %v", strings.Join(v.Meta.Config.Env, "\n   ")), "")
+					LogMessage("Environment", color)
+					LogMessage(fmt.Sprintf("  %v", strings.Join(v.Meta.Config.Env, "\n   ")), color)
 				}
-				LogMessage(fmt.Sprintf("Created: %v", v.Meta.Created), "g")
+				LogMessage(fmt.Sprintf("Created: %v", v.Meta.Created), color)
 
 			}
 		}
@@ -163,7 +174,7 @@ func containersAction(c *cli.Context) {
 	}
 	// no op specified ; show all
 	for _, v := range containers {
-		LogMessage(fmt.Sprintf("%v %v", v.ContainerID[:12], v.Meta.Config.Image), "g")
+		LogMessage(fmt.Sprintf("%v %v", v.ContainerID[:12], v.Meta.Config.Image), color)
 	}
 }
 
@@ -176,19 +187,19 @@ func imagesAction(c *cli.Context) {
 	images := meta.Objects
 	// check for op
 	id := c.String("id")
+	color := ""
 	if id != "" {
 		for _, v := range images {
 			if strings.Index(v.ID, id) == 0 {
-				LogMessage(fmt.Sprintf("ID: %s", v.ID), "g")
-				LogMessage(fmt.Sprintf("Host: %s", v.Host.Name), "g")
-				LogMessage(fmt.Sprintf("Repository: %s", v.Repository), "g")
+				LogMessage(fmt.Sprintf("ID: %s", v.ID), color)
+				LogMessage(fmt.Sprintf("Host: %s", v.Host.Name), color)
+				LogMessage(fmt.Sprintf("Repository: %s", v.Repository), color)
 			}
 		}
 		return
 	}
 	// no op specified ; show all
 	for _, v := range images {
-		color := "g"
 		LogMessage(fmt.Sprintf("%s %s", v.ID[:12], v.Repository), color)
 	}
 }
@@ -202,21 +213,21 @@ func hostsAction(c *cli.Context) {
 	hosts := meta.Objects
 	// check for container op
 	name := c.String("name")
+	color := ""
 	if name != "" {
 		// check for operation
 		for _, v := range hosts {
 			if v.Name == name {
-				LogMessage(fmt.Sprintf("Name: %v", v.Name), "g")
-				LogMessage(fmt.Sprintf("Hostname: %v", v.Hostname), "g")
-				LogMessage(fmt.Sprintf("Port: %v", v.Port), "g")
-				LogMessage(fmt.Sprintf("Enabled: %v", v.Enabled), "g")
+				LogMessage(fmt.Sprintf("Name: %v", v.Name), color)
+				LogMessage(fmt.Sprintf("Hostname: %v", v.Hostname), color)
+				LogMessage(fmt.Sprintf("Port: %v", v.Port), color)
+				LogMessage(fmt.Sprintf("Enabled: %v", v.Enabled), color)
 			}
 		}
 		return
 	}
 	// no op specified ; show all
 	for _, v := range hosts {
-		color := "g"
 		if !v.Enabled {
 			color = ""
 		}
