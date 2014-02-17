@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-        "os"
 	"github.com/codegangsta/cli"
 	"github.com/gcmurphy/getpass"
+	"os"
 	"strings"
 )
 
@@ -35,8 +35,8 @@ func loginAction(c *cli.Context) {
 	}
 	userData, loginErr := api.Login(url, username, password)
 	if loginErr != nil {
-            LogMessage("Error logging in.  Please check username/password.", "r")
-            os.Exit(1)
+		LogMessage("Error logging in.  Please check username/password.", "r")
+		os.Exit(1)
 	}
 	saveConfig(username, userData.ApiKey, url, version)
 	LogMessage("Login successful", "g")
@@ -74,7 +74,7 @@ func applicationsAction(c *cli.Context) {
 
 func containersAction(c *cli.Context) {
 	api := getAPI(c)
-        showAll := c.Bool("all")
+	showAll := c.Bool("all")
 	cntMeta, err := api.GetContainers(showAll)
 	if err != nil {
 		panic(err)
@@ -82,49 +82,65 @@ func containersAction(c *cli.Context) {
 	containers := cntMeta.Objects
 	// check for container op
 	containerID := c.String("id")
+	// check for operation
+	restart := c.Bool("restart")
+	stop := c.Bool("stop")
+	start := c.Bool("start")
+	remove := c.Bool("remove")
+	// check for multiple requests
+	if restart {
+		if containerID == "" {
+			LogMessage("Error: No container specified", "r")
+			return
+		}
+		_, err := api.RestartContainer(containerID)
+		if err != nil {
+			LogMessage(fmt.Sprintf("Error restarting %s: %s", containerID, err), "r")
+		} else {
+			LogMessage(fmt.Sprintf("Restarted %s", containerID), "g")
+		}
+		return
+	}
+	if stop {
+		if containerID == "" {
+			LogMessage("Error: No container specified", "r")
+			return
+		}
+		_, err := api.StopContainer(containerID)
+		if err != nil {
+			LogMessage(fmt.Sprintf("Error stopping %s: %s", containerID, err), "r")
+		} else {
+			LogMessage(fmt.Sprintf("Stopped %s", containerID), "g")
+		}
+		return
+	}
+	if start {
+		if containerID == "" {
+			LogMessage("Error: No container specified", "r")
+			return
+		}
+		_, err := api.StartContainer(containerID)
+		if err != nil {
+			LogMessage(fmt.Sprintf("Error starting %s: %s", containerID, err), "r")
+		} else {
+			LogMessage(fmt.Sprintf("Started %s", containerID), "g")
+		}
+		return
+	}
+	if remove {
+		if containerID == "" {
+			LogMessage("Error: No container specified", "r")
+			return
+		}
+		_, err := api.RemoveContainer(containerID)
+		if err != nil {
+			LogMessage(fmt.Sprintf("Error removing %s: %s", containerID, err), "r")
+		} else {
+			LogMessage(fmt.Sprintf("Removed %s", containerID), "g")
+		}
+		return
+	}
 	if containerID != "" {
-		// check for operation
-                restart := c.Bool("restart")
-                stop := c.Bool("stop")
-                start := c.Bool("start")
-                remove := c.Bool("remove")
-                // check for multiple requests
-                if restart {
-                    _, err := api.RestartContainer(containerID)
-                    if err != nil {
-                        LogMessage(fmt.Sprintf("Error restarting %s: %s", containerID, err), "r")
-                    } else {
-                        LogMessage(fmt.Sprintf("Restarted %s", containerID), "g")
-                    }
-                    return
-                }
-                if stop {
-                    _, err := api.StopContainer(containerID)
-                    if err != nil {
-                        LogMessage(fmt.Sprintf("Error stopping %s: %s", containerID, err), "r")
-                    } else {
-                        LogMessage(fmt.Sprintf("Stopped %s", containerID), "g")
-                    }
-                    return
-                }
-                if start {
-                    _, err := api.StartContainer(containerID)
-                    if err != nil {
-                        LogMessage(fmt.Sprintf("Error starting %s: %s", containerID, err), "r")
-                    } else {
-                        LogMessage(fmt.Sprintf("Started %s", containerID), "g")
-                    }
-                    return
-                }
-                if remove {
-                    _, err := api.RemoveContainer(containerID)
-                    if err != nil {
-                        LogMessage(fmt.Sprintf("Error removing %s: %s", containerID, err), "r")
-                    } else {
-                        LogMessage(fmt.Sprintf("Removed %s", containerID), "g")
-                    }
-                    return
-                }
 		for _, v := range containers {
 			if strings.Index(v.ContainerID, containerID) == 0 {
 				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID[:12]), "g")
@@ -134,10 +150,10 @@ func containersAction(c *cli.Context) {
 				LogMessage(fmt.Sprintf("Image: %v", v.Meta.Config.Image), "g")
 				LogMessage(fmt.Sprintf("CPU Shares: %v", v.Meta.Config.CpuShares), "g")
 				LogMessage(fmt.Sprintf("Memory Limit: %v", v.Meta.Config.Memory), "g")
-                                if len(v.Meta.Config.Env) > 0 {
-                                    LogMessage("Environment", "g")
-				    LogMessage(fmt.Sprintf("  %v", strings.Join(v.Meta.Config.Env, "\n   ")), "")
-                                }
+				if len(v.Meta.Config.Env) > 0 {
+					LogMessage("Environment", "g")
+					LogMessage(fmt.Sprintf("  %v", strings.Join(v.Meta.Config.Env, "\n   ")), "")
+				}
 				LogMessage(fmt.Sprintf("Created: %v", v.Meta.Created), "g")
 
 			}
@@ -170,7 +186,7 @@ func imagesAction(c *cli.Context) {
 	// no op specified ; show all
 	for _, v := range images {
 		color := "g"
-                LogMessage(fmt.Sprintf("%s %s", v.ID[:12], v.Repository), color)
+		LogMessage(fmt.Sprintf("%s %s", v.ID[:12], v.Repository), color)
 	}
 }
 

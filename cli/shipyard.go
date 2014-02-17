@@ -117,7 +117,7 @@ func main() {
 			Usage:     "Application Management",
 			Flags: []cli.Flag{
 				cli.StringFlag{"action, a", "show", "Show Applications"},
-				cli.StringFlag{"name, n", "", "Application Name (optional)"},
+				cli.StringFlag{"name, n", "", "Show application details"},
 			},
 			Action: func(c *cli.Context) {
 				applicationsAction(c)
@@ -128,12 +128,12 @@ func main() {
 			ShortName: "",
 			Usage:     "Container Management",
 			Flags: []cli.Flag{
-                                cli.BoolFlag{"start", "Start Container"},
-                                cli.BoolFlag{"stop", "Stop Container"},
-                                cli.BoolFlag{"restart", "Restart Container"},
-                                cli.BoolFlag{"remove", "Remove Container"},
-				cli.StringFlag{"id, i", "", "Container ID (optional)"},
-				cli.BoolFlag{"all", "Show all containers (optional)"},
+				cli.BoolFlag{"start", "Start Container"},
+				cli.BoolFlag{"stop", "Stop Container"},
+				cli.BoolFlag{"restart", "Restart Container"},
+				cli.BoolFlag{"remove", "Remove Container"},
+				cli.StringFlag{"id", "", "Show container details"},
+				cli.BoolFlag{"all", "Show all containers"},
 			},
 			Action: func(c *cli.Context) {
 				containersAction(c)
@@ -144,7 +144,7 @@ func main() {
 			ShortName: "",
 			Usage:     "Image Management",
 			Flags: []cli.Flag{
-				cli.StringFlag{"id, i", "", "ID of Image (optional)"},
+				cli.StringFlag{"id", "", "Show image details"},
 			},
 			Action: func(c *cli.Context) {
 				imagesAction(c)
@@ -155,7 +155,7 @@ func main() {
 			ShortName: "",
 			Usage:     "Host Management",
 			Flags: []cli.Flag{
-				cli.StringFlag{"name, n", "", "Name of Host (optional)"},
+				cli.StringFlag{"name, n", "", "Show host details"},
 			},
 			Action: func(c *cli.Context) {
 				hostsAction(c)
