@@ -42,7 +42,7 @@ func loginAction(c *cli.Context) {
 	LogMessage("Login successful", "g")
 }
 
-func showApplicationsAction(c *cli.Context) {
+func applicationsAction(c *cli.Context) {
 	api := getAPI(c)
 	appMeta, err := api.GetApplications()
 	if err != nil {
@@ -72,9 +72,10 @@ func showApplicationsAction(c *cli.Context) {
 	}
 }
 
-func showContainersAction(c *cli.Context) {
+func containersAction(c *cli.Context) {
 	api := getAPI(c)
-	cntMeta, err := api.GetContainers()
+        showAll := c.Bool("all")
+	cntMeta, err := api.GetContainers(showAll)
 	if err != nil {
 		panic(err)
 	}
@@ -83,6 +84,47 @@ func showContainersAction(c *cli.Context) {
 	containerID := c.String("id")
 	if containerID != "" {
 		// check for operation
+                restart := c.Bool("restart")
+                stop := c.Bool("stop")
+                start := c.Bool("start")
+                remove := c.Bool("remove")
+                // check for multiple requests
+                if restart {
+                    _, err := api.RestartContainer(containerID)
+                    if err != nil {
+                        LogMessage(fmt.Sprintf("Error restarting %s: %s", containerID, err), "r")
+                    } else {
+                        LogMessage(fmt.Sprintf("Restarted %s", containerID), "g")
+                    }
+                    return
+                }
+                if stop {
+                    _, err := api.StopContainer(containerID)
+                    if err != nil {
+                        LogMessage(fmt.Sprintf("Error stopping %s: %s", containerID, err), "r")
+                    } else {
+                        LogMessage(fmt.Sprintf("Stopped %s", containerID), "g")
+                    }
+                    return
+                }
+                if start {
+                    _, err := api.StartContainer(containerID)
+                    if err != nil {
+                        LogMessage(fmt.Sprintf("Error starting %s: %s", containerID, err), "r")
+                    } else {
+                        LogMessage(fmt.Sprintf("Started %s", containerID), "g")
+                    }
+                    return
+                }
+                if remove {
+                    _, err := api.RemoveContainer(containerID)
+                    if err != nil {
+                        LogMessage(fmt.Sprintf("Error removing %s: %s", containerID, err), "r")
+                    } else {
+                        LogMessage(fmt.Sprintf("Removed %s", containerID), "g")
+                    }
+                    return
+                }
 		for _, v := range containers {
 			if strings.Index(v.ContainerID, containerID) == 0 {
 				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID[:12]), "g")
@@ -92,8 +134,10 @@ func showContainersAction(c *cli.Context) {
 				LogMessage(fmt.Sprintf("Image: %v", v.Meta.Config.Image), "g")
 				LogMessage(fmt.Sprintf("CPU Shares: %v", v.Meta.Config.CpuShares), "g")
 				LogMessage(fmt.Sprintf("Memory Limit: %v", v.Meta.Config.Memory), "g")
-				LogMessage("Environment:", "g")
-				LogMessage(fmt.Sprintf("  %v", strings.Join(v.Meta.Config.Env, "\n   ")), "")
+                                if len(v.Meta.Config.Env) > 0 {
+                                    LogMessage("Environment", "g")
+				    LogMessage(fmt.Sprintf("  %v", strings.Join(v.Meta.Config.Env, "\n   ")), "")
+                                }
 				LogMessage(fmt.Sprintf("Created: %v", v.Meta.Created), "g")
 
 			}
@@ -102,11 +146,35 @@ func showContainersAction(c *cli.Context) {
 	}
 	// no op specified ; show all
 	for _, v := range containers {
-		LogMessage(fmt.Sprintf("%v (%v)", v.ContainerID[:12], v.Meta.Config.Image), "g")
+		LogMessage(fmt.Sprintf("%v %v", v.ContainerID[:12], v.Meta.Config.Image), "g")
 	}
 }
 
-func showHostsAction(c *cli.Context) {
+func imagesAction(c *cli.Context) {
+	api := getAPI(c)
+	meta, err := api.GetImages()
+	if err != nil {
+		panic(err)
+	}
+	images := meta.Objects
+	// check for op
+	id := c.String("id")
+	if id != "" {
+		for _, v := range images {
+			if strings.Index(v.ID, id) == 0 {
+				LogMessage(fmt.Sprintf("Repository: %v", v.Repository), "g")
+			}
+		}
+		return
+	}
+	// no op specified ; show all
+	for _, v := range images {
+		color := "g"
+                LogMessage(fmt.Sprintf("%s %s", v.ID[:12], v.Repository), color)
+	}
+}
+
+func hostsAction(c *cli.Context) {
 	api := getAPI(c)
 	meta, err := api.GetHosts()
 	if err != nil {
@@ -142,5 +210,5 @@ func configAction(c *cli.Context) {
 	LogMessage(fmt.Sprintf("Endpoint: %v", config.Url), "g")
 	LogMessage(fmt.Sprintf("Username: %v", config.Username), "g")
 	LogMessage(fmt.Sprintf("Version: %v", config.Version), "g")
-	LogMessage(fmt.Sprintf("APIKey: %v...", config.ApiKey[0:5]), "g")
+	LogMessage(fmt.Sprintf("APIKey: %v", config.ApiKey), "g")
 }

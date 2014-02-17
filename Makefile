@@ -1,10 +1,11 @@
 all:
-	@go get github.com/ehazlett/shipyard-go/shipyard
-	@go get github.com/codegangsta/cli
-	@go get github.com/gcmurphy/getpass
+	@go get -d -v ./...
 	@cd ./cli && go build -o ../shipyard
 
 fmt:
-	@cd ./cli && go fmt
+	@go fmt ./...
+
+test:
+	@go test ./...
 clean:
 	@rm -rf shipyard

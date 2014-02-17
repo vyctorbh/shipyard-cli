@@ -76,9 +76,9 @@ func getAPI(c *cli.Context) shipyard.API {
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "Shipyard"
+	app.Name = "Shipyard CLI"
 	app.Version = "0.1.0"
-	app.Usage = "Shipyard CLI"
+	app.Usage = "Command line interface for Shipyard"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{"username", "", "Shipyard API Username"},
 		cli.StringFlag{"key", "", "Shipyard API Key"},
@@ -112,36 +112,53 @@ func main() {
 			},
 		},
 		{
-			Name:      "show-applications",
+			Name:      "apps",
 			ShortName: "",
-			Usage:     "Show Applications",
+			Usage:     "Application Management",
 			Flags: []cli.Flag{
-				cli.StringFlag{"name", "", "Application Name (optional)"},
+				cli.StringFlag{"action, a", "show", "Show Applications"},
+				cli.StringFlag{"name, n", "", "Application Name (optional)"},
 			},
 			Action: func(c *cli.Context) {
-				showApplicationsAction(c)
+				applicationsAction(c)
 			},
 		},
 		{
-			Name:      "show-containers",
+			Name:      "containers",
 			ShortName: "",
-			Usage:     "Show Containers",
+			Usage:     "Container Management",
 			Flags: []cli.Flag{
-				cli.StringFlag{"id", "", "Container ID (optional)"},
+                                cli.BoolFlag{"start", "Start Container"},
+                                cli.BoolFlag{"stop", "Stop Container"},
+                                cli.BoolFlag{"restart", "Restart Container"},
+                                cli.BoolFlag{"remove", "Remove Container"},
+				cli.StringFlag{"id, i", "", "Container ID (optional)"},
+				cli.BoolFlag{"all", "Show all containers (optional)"},
 			},
 			Action: func(c *cli.Context) {
-				showContainersAction(c)
+				containersAction(c)
 			},
 		},
 		{
-			Name:      "show-hosts",
+			Name:      "images",
 			ShortName: "",
-			Usage:     "Show Hosts",
+			Usage:     "Image Management",
 			Flags: []cli.Flag{
-				cli.StringFlag{"name", "", "Name of Host (optional)"},
+				cli.StringFlag{"id, i", "", "ID of Image (optional)"},
 			},
 			Action: func(c *cli.Context) {
-				showHostsAction(c)
+				imagesAction(c)
+			},
+		},
+		{
+			Name:      "hosts",
+			ShortName: "",
+			Usage:     "Host Management",
+			Flags: []cli.Flag{
+				cli.StringFlag{"name, n", "", "Name of Host (optional)"},
+			},
+			Action: func(c *cli.Context) {
+				hostsAction(c)
 			},
 		},
 		{
