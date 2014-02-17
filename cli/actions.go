@@ -237,8 +237,9 @@ func hostsAction(c *cli.Context) {
 
 func configAction(c *cli.Context) {
 	config, _ := loadConfig(c)
-	LogMessage(fmt.Sprintf("Endpoint: %v", config.Url), "g")
-	LogMessage(fmt.Sprintf("Username: %v", config.Username), "g")
-	LogMessage(fmt.Sprintf("Version: %v", config.Version), "g")
-	LogMessage(fmt.Sprintf("APIKey: %v", config.ApiKey), "g")
+	color := ""
+	LogMessage(fmt.Sprintf("Endpoint: %v", config.Url), color)
+	LogMessage(fmt.Sprintf("Username: %v", config.Username), color)
+	LogMessage(fmt.Sprintf("Version: %v", config.Version), color)
+	LogMessage(fmt.Sprintf("APIKey: %v", config.ApiKey), color)
 }
