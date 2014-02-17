@@ -10,13 +10,12 @@ import (
 	"path"
 )
 
-var configFile = path.Join(os.Getenv("HOME"), ".shipyard.cfg")
-
 var (
 	apiUsername string
 	apiKey      string
 	apiUrl      string
 	apiVersion  string
+	config      string
 )
 
 type Config struct {
@@ -26,21 +25,21 @@ type Config struct {
 	Version  string
 }
 
-func saveConfig(username string, apiKey string, url string, version string) {
+func saveConfig(username string, apiKey string, url string, version string, path string) {
 	// config
-	var config = Config{}
-	config = Config{
+	var c = Config{}
+	c = Config{
 		Username: username,
 		ApiKey:   apiKey,
 		Url:      url,
 		Version:  version,
 	}
 	// save config
-	cfg, err := json.Marshal(config)
+	cfg, err := json.Marshal(c)
 	b := []byte(cfg)
-	err = ioutil.WriteFile(configFile, b, 0600)
+	err = ioutil.WriteFile(path, b, 0600)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("Error saving file to %s: %s", path, err))
 	}
 }
 
@@ -49,41 +48,42 @@ func loadConfig(c *cli.Context) (Config, error) {
 	apiKey = c.GlobalString("key")
 	apiUrl = c.GlobalString("url")
 	apiVersion = c.GlobalString("api-version")
-	var config = Config{}
-	_, err := os.Stat(configFile)
+	var cf = Config{}
+	_, err := os.Stat(c.GlobalString("config"))
 	if err != nil {
-		saveConfig(apiUsername, apiKey, apiUrl, apiVersion)
+		saveConfig(apiUsername, apiKey, apiUrl, apiVersion, c.GlobalString("config"))
 	} else {
-		cfg, err := ioutil.ReadFile(configFile)
+		cfg, err := ioutil.ReadFile(c.GlobalString("config"))
 		if err != nil {
 			panic(err)
 		}
 		b := []byte(cfg)
-		config = Config{}
-		err = json.Unmarshal(b, &config)
+		cf = Config{}
+		err = json.Unmarshal(b, &cf)
 		if err != nil {
 			panic(err)
 		}
 	}
-	return config, nil
+	return cf, nil
 }
 
 func getAPI(c *cli.Context) shipyard.API {
-	config, _ := loadConfig(c)
-	api := shipyard.NewAPI(config.Username, config.ApiKey, config.Url, config.Version)
+	cfg, _ := loadConfig(c)
+	api := shipyard.NewAPI(cfg.Username, cfg.ApiKey, cfg.Url, cfg.Version)
 	return *api
 }
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "Shipyard CLI"
-	app.Version = "0.1.0"
+	app.Version = "0.1.1"
 	app.Usage = "Command line interface for Shipyard"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{"username", "", "Shipyard API Username"},
 		cli.StringFlag{"key", "", "Shipyard API Key"},
 		cli.StringFlag{"url", "", "Shipyard URL"},
 		cli.StringFlag{"api-version", "1", "Shipyard API Version"},
+		cli.StringFlag{"config, c", path.Join(os.Getenv("HOME"), ".shipyard.cfg"), "Config File"},
 	}
 	app.Action = func(c *cli.Context) {
 		if len(c.Args()) == 0 {

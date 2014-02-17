@@ -38,7 +38,7 @@ func loginAction(c *cli.Context) {
 		LogMessage("Error logging in.  Please check username/password.", "r")
 		os.Exit(1)
 	}
-	saveConfig(username, userData.ApiKey, url, version)
+	saveConfig(username, userData.ApiKey, url, version, c.GlobalString("config"))
 	LogMessage("Login successful", "g")
 }
 
