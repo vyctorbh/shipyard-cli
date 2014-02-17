@@ -154,7 +154,12 @@ func containersAction(c *cli.Context) {
 	if containerID != "" {
 		for _, v := range containers {
 			if strings.Index(v.ContainerID, containerID) == 0 {
-				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID[:12]), color)
+				status := "running"
+				if !v.Running {
+					status = "stopped"
+				}
+				LogMessage(fmt.Sprintf("ID: %s", v.ContainerID[:12]), color)
+				LogMessage(fmt.Sprintf("Status: %s", status), color)
 				LogMessage(fmt.Sprintf("Host: %v", v.Host.Name), color)
 				if v.Description != "" {
 					LogMessage(fmt.Sprintf("Description: %v", v.Description), color)
@@ -174,7 +179,7 @@ func containersAction(c *cli.Context) {
 	}
 	// no op specified ; show all
 	for _, v := range containers {
-		LogMessage(fmt.Sprintf("%v %v", v.ContainerID[:12], v.Meta.Config.Image), color)
+		LogMessage(fmt.Sprintf("%s %s", v.ContainerID[:12], v.Meta.Config.Image), color)
 	}
 }
 
