@@ -144,6 +144,7 @@ func containersAction(c *cli.Context) {
 		for _, v := range containers {
 			if strings.Index(v.ContainerID, containerID) == 0 {
 				LogMessage(fmt.Sprintf("ID: %v", v.ContainerID[:12]), "g")
+				LogMessage(fmt.Sprintf("Host: %v", v.Host.Name), "g")
 				if v.Description != "" {
 					LogMessage(fmt.Sprintf("Description: %v", v.Description), "g")
 				}
@@ -178,7 +179,9 @@ func imagesAction(c *cli.Context) {
 	if id != "" {
 		for _, v := range images {
 			if strings.Index(v.ID, id) == 0 {
-				LogMessage(fmt.Sprintf("Repository: %v", v.Repository), "g")
+				LogMessage(fmt.Sprintf("ID: %s", v.ID), "g")
+				LogMessage(fmt.Sprintf("Host: %s", v.Host.Name), "g")
+				LogMessage(fmt.Sprintf("Repository: %s", v.Repository), "g")
 			}
 		}
 		return
