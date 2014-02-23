@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/codegangsta/cli"
 	"github.com/gcmurphy/getpass"
+	"log"
 	"os"
 	"strings"
 )
@@ -46,7 +47,7 @@ func applicationsAction(c *cli.Context) {
 	api := getAPI(c)
 	appMeta, err := api.GetApplications()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error getting applications: %s", err)
 	}
 	apps := appMeta.Objects
 	// check for app op
@@ -87,7 +88,7 @@ func containersAction(c *cli.Context) {
 	showAll := c.Bool("all")
 	cntMeta, err := api.GetContainers(showAll)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error getting containers: %s", err)
 	}
 	containers := cntMeta.Objects
 	// check for container op
@@ -187,7 +188,7 @@ func imagesAction(c *cli.Context) {
 	api := getAPI(c)
 	meta, err := api.GetImages()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error getting images: %s", err)
 	}
 	images := meta.Objects
 	// check for op
@@ -213,7 +214,7 @@ func hostsAction(c *cli.Context) {
 	api := getAPI(c)
 	meta, err := api.GetHosts()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error getting hosts: %s", err)
 	}
 	hosts := meta.Objects
 	// check for container op
